@@ -50,7 +50,7 @@ public class EditBoxWrapper extends IMEReceiver {
 	}
 
 	protected void setCursorPos(int p) {
-		owner.moveCursorTo(p, true);
+		owner.moveCursorTo(p);
 	}
 
 	protected void setSelectionPos(int p) {

@@ -28,7 +28,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-
 public class TinyConfig {
 
     private static final Pattern INTEGER_ONLY = Pattern.compile("(-?[0-9]*)");
@@ -219,7 +218,7 @@ public class TinyConfig {
 
         @Override
         public void render(GuiGraphics matrices, int mouseX, int mouseY, float delta) {
-            this.renderBackground(matrices, mouseX, mouseY, delta);
+            this.renderBackground(matrices);
 
             if (mouseY >= 40 && mouseY <= 39 + entries.size()*30) {
                 int low = ((mouseY-10)/30)*30 + 10 + 2;
