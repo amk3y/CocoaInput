@@ -33,10 +33,6 @@ public class SignEditScreenWrapper extends IMEReceiver {
 		return owner.text.getMessage(owner.line,false).getString();
 	}
 
-	protected void setCursorInvisible() {
-		//owner.frame=6;
-	} //TODO
-
 	protected int getCursorPos() {
 		return owner.signField.getCursorPos();
 	}
@@ -72,10 +68,15 @@ public class SignEditScreenWrapper extends IMEReceiver {
         );
     }
 
-    /*
+
+    @Override
+    protected void setCursorInvisible() {
+        owner.frame = 6;
+    }
+
     public int renewCursorCounter() {
         return owner.frame+(cursorVisible?1:0);
     }
-    */
+
 
 }
