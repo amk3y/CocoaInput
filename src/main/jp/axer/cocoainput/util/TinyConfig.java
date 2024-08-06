@@ -20,14 +20,14 @@ import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.network.chat.BaseComponent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+
 
 public class TinyConfig {
 
@@ -42,7 +42,7 @@ public class TinyConfig {
         int width;
         String comment;
         Method dynamicTooltip;
-        Map.Entry<EditBox,TextComponent> error;
+        Map.Entry<EditBox, MutableComponent> error;
         Object defaultValue;
         Object value;
         String tempValue;
@@ -78,16 +78,16 @@ public class TinyConfig {
             else if (type == double.class) textField(info, Double::parseDouble, DECIMAL_ONLY, e.min(), e.max(),false);
             else if (type == String.class) textField(info, String::length, null, Math.min(e.min(),0), Math.max(e.max(),1),true);
             else if (type == boolean.class) {
-                Function<Object,TextComponent> func = value -> new TextComponent((Boolean) value ? "True" : "False");
-                info.widget = new AbstractMap.SimpleEntry<Button.OnPress, Function<Object, TextComponent>>(button -> {
+                Function<Object, MutableComponent> func = value -> Component.literal((Boolean) value ? "True" : "False");
+                info.widget = new AbstractMap.SimpleEntry<Button.OnPress, Function<Object, MutableComponent>>(button -> {
                     info.value = !(Boolean) info.value;
                     button.setMessage(func.apply(info.value));
                 }, func);
             }
             else if (type.isEnum()) {
                 List<?> values = Arrays.asList(field.getType().getEnumConstants());
-                Function<Object,BaseComponent> func = value -> new TranslatableComponent(translationPrefix + "enum." + type.getSimpleName() + "." + info.value.toString());
-                info.widget = new AbstractMap.SimpleEntry<Button.OnPress, Function<Object,BaseComponent>>( button -> {
+                Function<Object, MutableComponent> func = value -> Component.translatable(translationPrefix + "enum." + type.getSimpleName() + "." + info.value.toString());
+                info.widget = new AbstractMap.SimpleEntry<Button.OnPress, Function<Object, MutableComponent>>( button -> {
                     int index = values.indexOf(info.value) + 1;
                     info.value = values.get(index >= values.size()? 0 : index);
                     button.setMessage(func.apply(info.value));
@@ -136,7 +136,7 @@ public class TinyConfig {
             if (!(isNumber && s.isEmpty()) && !s.equals("-") && !s.equals(".")) {
                 value = f.apply(s);
                 inLimits = value.doubleValue() >= min && value.doubleValue() <= max;
-                info.error = inLimits? null : new AbstractMap.SimpleEntry<>(t, new TextComponent(value.doubleValue() < min ?
+                info.error = inLimits? null : new AbstractMap.SimpleEntry<>(t, Component.literal(value.doubleValue() < min ?
                         "§cMinimum " + (isNumber? "value" : "length") + (cast? " is " + (int)min : " is " + min) :
                         "§cMaximum " + (isNumber? "value" : "length") + (cast? " is " + (int)max : " is " + max)));
             }
@@ -169,7 +169,7 @@ public class TinyConfig {
 
     private static class TinyConfigScreen extends Screen {
         protected TinyConfigScreen(Screen parent) {
-            super(new TextComponent("CocoaInput config"));
+            super(Component.literal("CocoaInput config"));
             this.parent = parent;
         }
         private final Screen parent;
@@ -178,20 +178,28 @@ public class TinyConfig {
         protected void init() {
             super.init();
 
-            Button done = this.addRenderableWidget(new Button(this.width/2 - 100,this.height - 28,200,20,
-                    new TranslatableComponent("gui.done"), (button) -> {
-                for (EntryInfo info : entries)
-                    try { info.field.set(null, info.value); }
-                    catch (IllegalAccessException ignore) {}
-                write();
-                minecraft.setScreen(parent);
-            }));
+            Button done = this.addRenderableWidget(
+                    Button.builder(
+                            Component.translatable("gui.done"),
+                            (button) -> {
+                        for (EntryInfo info : entries)
+                            try { info.field.set(null, info.value); }
+                            catch (IllegalAccessException ignore) {}
+                        write();
+                        minecraft.setScreen(parent);
+                    }).bounds(this.width/2 - 100,this.height - 28,200,20).build()
+            );
 
             int y = 45;
             for (EntryInfo info : entries) {
                 if (info.widget instanceof Map.Entry) {
-                    Map.Entry<Button.OnPress,Function<Object,BaseComponent>> widget = (Map.Entry<Button.OnPress, Function<Object, BaseComponent>>) info.widget;
-                    addRenderableWidget(new Button(width-85,y,info.width,20, widget.getValue().apply(info.value), widget.getKey()));
+                    Map.Entry<Button.OnPress,Function<Object,MutableComponent>> widget = (Map.Entry<Button.OnPress, Function<Object, MutableComponent>>) info.widget;
+                    addRenderableWidget(
+                            Button.builder(widget.getValue().apply(info.value), widget.getKey())
+                                    .bounds(width-85,y,info.width,20)
+                                    .build()
+                    );
+
                 }
                 else {
                     EditBox widget = addWidget(new EditBox(font, width-85, y, info.width, 20, null));
@@ -208,21 +216,22 @@ public class TinyConfig {
 
         }
 
+
         @Override
-        public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-            this.renderBackground(matrices);
+        public void render(GuiGraphics matrices, int mouseX, int mouseY, float delta) {
+            this.renderBackground(matrices, mouseX, mouseY, delta);
 
             if (mouseY >= 40 && mouseY <= 39 + entries.size()*30) {
                 int low = ((mouseY-10)/30)*30 + 10 + 2;
-                fill(matrices, 0, low, width, low+30-4, 0x33FFFFFF);
+                matrices.fill(0, low, width, low+30-4, 0x33FFFFFF);
             }
 
             super.render(matrices, mouseX, mouseY, delta);
-            drawCenteredString(matrices, font, title, width/2, 15, 0xFFFFFF);
+            matrices.drawCenteredString(font, title, width/2, 15, 0xFFFFFF);
 
             int y = 40;
             for (EntryInfo info : entries) {
-				drawString(matrices, font, new TextComponent(info.comment), 12, y + 10, 0xFFFFFF);
+                matrices.drawString(font, Component.literal(info.comment), 12, y + 10, 0xFFFFFF);
 				/*
                 if (info.error != null && info.error.getKey().isMouseOver(mouseX,mouseY))
                     renderTooltip(matrices, info.error.getValue(), mouseX, mouseY);

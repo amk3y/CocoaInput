@@ -1,7 +1,5 @@
 package jp.axer.cocoainput.util;
 
-import jp.axer.cocoainput.util.ConfigPack;
-
 public class FCConfig extends TinyConfig implements ConfigPack{
 
 	@Entry(comment="AdvancedPreeditDraw - Is preedit marking - Default:true")

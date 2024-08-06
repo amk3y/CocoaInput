@@ -17,7 +17,7 @@ public class EditBoxMixin {
 		 wrapper = new EditBoxWrapper((EditBox)(Object)this);
 	 }
 	 
-	 @Inject(method="setFocus",at=@At("HEAD"))
+	 @Inject(method="setFocused",at=@At("HEAD"))
 	 private void setFocus(boolean b,CallbackInfo ci) {
 		 wrapper.setFocused(b);
 	 }
@@ -25,9 +25,12 @@ public class EditBoxMixin {
 	 private void setCanLoseFocus(boolean b,CallbackInfo ci) {
 		 wrapper.setCanLoseFocus(b);
 	 }
+
+	 /*
 	 @Inject(method="tick",at=@At("HEAD"),cancellable=true)
 	 private void tick(CallbackInfo ci) {
 		 wrapper.updateCursorCounter();
 		 ci.cancel();
 	 }
+	 */
 }
