@@ -96,6 +96,7 @@
 				7ADD32992245DC09008BB7B1 /* Sources */,
 				7ADD329A2245DC09008BB7B1 /* Frameworks */,
 				7ADD329B2245DC09008BB7B1 /* Headers */,
+				A6F69FBB2C639E6C00A922CC /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -136,6 +137,26 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A6F69FBB2C639E6C00A922CC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncp ${TARGET_BUILD_DIR}/${TARGET_NAME}.dylib ${PROJECT_DIR}/../../src/main/resources/darwin\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		7ADD32992245DC09008BB7B1 /* Sources */ = {
