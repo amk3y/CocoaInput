@@ -1,6 +1,7 @@
 package jp.axer.cocoainput.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -10,9 +11,10 @@ import net.minecraft.client.gui.components.EditBox;
 
 @Mixin(EditBox.class)
 public class EditBoxMixin {
+	 @Unique
 	 EditBoxWrapper wrapper;
 	 
-	 @Inject(method="<init>*",at=@At("RETURN"))
+	 @Inject(method="<init>(Lnet/minecraft/client/gui/Font;IIIILnet/minecraft/client/gui/components/EditBox;Lnet/minecraft/network/chat/Component;)V",at= @At("TAIL"))
 	 private void init(CallbackInfo ci) {
 		 wrapper = new EditBoxWrapper((EditBox)(Object)this);
 	 }

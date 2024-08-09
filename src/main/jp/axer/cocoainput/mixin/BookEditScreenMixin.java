@@ -2,6 +2,7 @@ package jp.axer.cocoainput.mixin;
 
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -12,9 +13,10 @@ import net.minecraft.client.gui.screens.inventory.BookEditScreen;
 
 @Mixin(BookEditScreen.class)
 public class BookEditScreenMixin {
+	 @Unique
 	 BookEditScreenWrapper wrapper;
 	 
-	 @Inject(method="init*",at=@At("RETURN"))
+	 @Inject(method="<init>",at=@At("TAIL"))
 	 private void init(CallbackInfo ci) {
 		 wrapper = new BookEditScreenWrapper((BookEditScreen)(Object)this);
 	 }
